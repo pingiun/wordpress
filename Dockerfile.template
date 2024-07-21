@@ -292,6 +292,7 @@ COPY unit.json /unit-entrypoint.d/wordpress.json
 
 {{ ) else "" end -}}
 {{ ) else "" end -}}
+RUN cp /usr/src/wordpress/wp-config-docker.php /usr/src/wordpress/wp-config.php
 COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]

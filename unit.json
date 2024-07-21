@@ -8,6 +8,14 @@
 	"routes": [
 		{
 			"match": {
+				"uri": "/wp-content/uploads"
+			},
+			"action": {
+				"share": "/usr/src/wordpress/wp-content/uploads"
+			}
+		},
+		{
+			"match": {
 				"uri": [
 					"*.php",
 					"*.php/*",
@@ -20,7 +28,7 @@
 		},
 		{
 			"action": {
-				"share": "/var/www/html$uri",
+				"share": "/usr/src/wordpress$uri",
 				"fallback": {
 					"pass": "applications/wordpress/index"
 				}
@@ -33,10 +41,10 @@
 			"type": "php",
 			"targets": {
 				"direct": {
-					"root": "/var/www/html/"
+					"root": "/usr/src/wordpress/"
 				},
 				"index": {
-					"root": "/var/www/html/",
+					"root": "/usr/src/wordpress/",
 					"script": "index.php"
 				}
 			}
