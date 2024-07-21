@@ -1,0 +1,27 @@
+name: Update versions
+
+permissions:
+  # Give the default GITHUB_TOKEN write permission to commit and push the
+  # added or changed files to the repository.
+  contents: write
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+      - uses: docker-library/bashbrew@HEAD
+      - name: Update Versions
+        run: |
+          ./update.sh
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update versions"
