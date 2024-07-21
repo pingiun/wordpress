@@ -5,12 +5,19 @@
       "8.2",
       "8.3"
     ],
-    "sha1": "687e692d489c449a09a0dfb76a751aea5bec1f23",
-    "upstream": "6.6.1-RC1",
+    "sha1": "d1aedbfea77b243b09e0ab05b100b782497406dd",
+    "unit": {
+      "phpVersions": [
+        "8.2"
+      ],
+      "version": "1.31.1"
+    },
+    "upstream": "6.4.2",
     "variants": [
       "apache",
       "fpm",
-      "fpm-alpine"
+      "fpm-alpine",
+      "unit"
     ],
     "version": "6.6.1-RC1"
   },
@@ -32,12 +39,24 @@
       "8.2",
       "8.3"
     ],
+<<<<<<< HEAD
     "sha1": "6bdc580973c6c5e44c0c6164c348217152874817",
     "upstream": "6.6",
+=======
+    "sha1": "d1aedbfea77b243b09e0ab05b100b782497406dd",
+    "unit": {
+      "phpVersions": [
+        "8.2"
+      ],
+      "version": "1.31.1"
+    },
+    "upstream": "6.4.2",
+>>>>>>> unit/unit
     "variants": [
       "apache",
       "fpm",
-      "fpm-alpine"
+      "fpm-alpine",
+      "unit"
     ],
     "version": "6.6.0"
   }

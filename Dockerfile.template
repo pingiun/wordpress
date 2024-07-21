@@ -2,7 +2,11 @@
 	def is_alpine:
 		env.variant | index("alpine")
 -}}
+{{ if env.variant == "unit" then ( -}}
+FROM unit:{{ .unit.version }}-php{{ env.phpVersion }}
+{{ ) else ( -}}
 FROM php:{{ env.phpVersion }}-{{ env.variant }}
+{{ ) end -}}
 
 {{ if env.version != "cli" then ( -}}
 # persistent dependencies
@@ -268,12 +272,38 @@ VOLUME /var/www/html
 
 {{ if env.version != "cli" then ( -}}
 COPY --chown=www-data:www-data wp-config-docker.php /usr/src/wordpress/
+{{ if env.variant == "unit" then ( -}}
+
+# NGINX Unit specific bits
+WORKDIR /var/www/html
+RUN set -eux; \
+# save Unit's entrypoint so we can successfully/correctly configure Unit at runtime
+	sed -e 's/docker-entrypoint/unit-entrypoint/g' /usr/local/bin/docker-entrypoint.sh > /usr/local/bin/unit-entrypoint.sh; \
+	grep -F '/unit-entrypoint.d/' /usr/local/bin/unit-entrypoint.sh; \
+	chmod +x /usr/local/bin/unit-entrypoint.sh; \
+	\
+	{ \
+		echo; \
+		echo '// WordPress does not support NGINX Unit (yet), so we have to do a little hackery to let it know that Unit supports nice permalinks (and prevent it from insisting on injecting "/index.php" in all the permalink options) -- the simplest way is teaching it to recognize Unit as if it were NGINX (which is only semi-true, but true enough for these purposes)'; \
+		echo '$is_nginx = $is_nginx || str_starts_with($_SERVER["SERVER_SOFTWARE"], "Unit/");'; \
+		echo '// see also https://github.com/WordPress/WordPress/blob/39f7f558d91afdd2f3afc7f3b049a6a800cd3f80/wp-includes/vars.php#L127'; \
+	} >> /usr/src/wordpress/wp-config-docker.php
+COPY unit.json /unit-entrypoint.d/wordpress.json
+
+{{ ) else "" end -}}
 {{ ) else "" end -}}
 COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 {{ if env.version != "cli" then ( -}}
-CMD {{ [ if env.variant == "apache" then "apache2-foreground" else "php-fpm" end ] | @json }}
+CMD {{
+	{
+		apache: [ "apache2-foreground" ],
+		# https://github.com/nginx/unit/blob/fb33ec86a3b6ca6a844dfa6980bb9e083094abec/pkg/docker/Dockerfile.php8.2#L89
+		unit: [ "unitd", "--no-daemon", "--control", "unix:/var/run/control.unit.sock" ],
+	}[env.variant] // [ "php-fpm" ]
+	| @json
+}}
 {{ ) else ( -}}
 USER www-data
 CMD ["wp", "shell"]
