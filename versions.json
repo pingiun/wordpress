@@ -1,61 +1,18 @@
 {
-  "beta": {
-    "phpVersions": [
-      "8.1",
-      "8.2",
-      "8.3"
-    ],
-    "sha1": "d1aedbfea77b243b09e0ab05b100b782497406dd",
-    "unit": {
-      "phpVersions": [
-        "8.2"
-      ],
-      "version": "1.31.1"
-    },
-    "upstream": "6.4.2",
-    "variants": [
-      "apache",
-      "fpm",
-      "fpm-alpine",
-      "unit"
-    ],
-    "version": "6.6.1-RC1"
-  },
-  "cli": {
-    "phpVersions": [
-      "8.1",
-      "8.2",
-      "8.3"
-    ],
-    "sha512": "c243265be520cd906f6dac767b56bb4e7dae9b6308db32b7e45ed8adbacad97bce987fd69b019d25478f394f0082404a0f44a93416f5e4d943cb32fd08f1feac",
-    "variants": [
-      "alpine"
-    ],
-    "version": "2.10.0"
-  },
   "latest": {
     "phpVersions": [
-      "8.1",
-      "8.2",
       "8.3"
     ],
-<<<<<<< HEAD
     "sha1": "6bdc580973c6c5e44c0c6164c348217152874817",
-    "upstream": "6.6",
-=======
-    "sha1": "d1aedbfea77b243b09e0ab05b100b782497406dd",
     "unit": {
       "phpVersions": [
+        "8.3",
         "8.2"
       ],
-      "version": "1.31.1"
+      "version": "1.32.1"
     },
-    "upstream": "6.4.2",
->>>>>>> unit/unit
+    "upstream": "6.6",
     "variants": [
-      "apache",
-      "fpm",
-      "fpm-alpine",
       "unit"
     ],
     "version": "6.6.0"

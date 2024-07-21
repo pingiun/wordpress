@@ -4,28 +4,28 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM php:8.1-fpm-alpine
+FROM unit:1.32.1-php8.3
 
 # persistent dependencies
 RUN set -eux; \
-	apk add --no-cache \
-# in theory, docker-entrypoint.sh is POSIX-compliant, but priority is a working, consistent image
-		bash \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
 # Ghostscript is required for rendering PDF previews
 		ghostscript \
-# Alpine package for "imagemagick" contains ~120 .so files, see: https://github.com/docker-library/wordpress/pull/497
-		imagemagick \
-	;
+	; \
+	rm -rf /var/lib/apt/lists/*
 
 # install the PHP extensions we need (https://make.wordpress.org/hosting/handbook/handbook/server-environment/#php-extensions)
 RUN set -ex; \
 	\
-	apk add --no-cache --virtual .build-deps \
-		$PHPIZE_DEPS \
-		freetype-dev \
-		icu-dev \
-		imagemagick-dev \
-		libjpeg-turbo-dev \
+	savedAptMark="$(apt-mark showmanual)"; \
+	\
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		libfreetype6-dev \
+		libicu-dev \
+		libjpeg-dev \
+		libmagickwand-dev \
 		libpng-dev \
 		libwebp-dev \
 		libzip-dev \
@@ -44,7 +44,6 @@ RUN set -ex; \
 		mysqli \
 		zip \
 	; \
-# WARNING: imagick is likely not supported on Alpine: https://github.com/Imagick/imagick/issues/328
 # https://pecl.php.net/package/imagick
 # https://github.com/Imagick/imagick/commit/5ae2ecf20a1157073bad0170106ad0cf74e01cb6 (causes a lot of build failures, but strangely only intermittent ones 🤔)
 # see also https://github.com/Imagick/imagick/pull/641
@@ -67,14 +66,19 @@ RUN set -ex; \
 	\
 	extDir="$(php -r 'echo ini_get("extension_dir");')"; \
 	[ -d "$extDir" ]; \
-	runDeps="$( \
-		scanelf --needed --nobanner --format '%n#p' --recursive "$extDir" \
-			| tr ',' '\n' \
-			| sort -u \
-			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
-	)"; \
-	apk add --no-network --virtual .wordpress-phpexts-rundeps $runDeps; \
-	apk del --no-network .build-deps; \
+# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+	apt-mark auto '.*' > /dev/null; \
+	apt-mark manual $savedAptMark; \
+	ldd "$extDir"/*.so \
+		| awk '/=>/ { so = $(NF-1); if (index(so, "/usr/local/") == 1) { next }; gsub("^/(usr/)?", "", so); printf "*%s\n", so }' \
+		| sort -u \
+		| xargs -r dpkg-query --search \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -rt apt-mark manual; \
+	\
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*; \
 	\
 	! { ldd "$extDir"/*.so | grep 'not found'; }; \
 # check for output like "PHP Warning:  PHP Startup: Unable to load dynamic library 'foo' (tried: ...)
@@ -147,7 +151,24 @@ RUN set -eux; \
 VOLUME /var/www/html
 
 COPY --chown=www-data:www-data wp-config-docker.php /usr/src/wordpress/
+
+# NGINX Unit specific bits
+WORKDIR /var/www/html
+RUN set -eux; \
+# save Unit's entrypoint so we can successfully/correctly configure Unit at runtime
+	sed -e 's/docker-entrypoint/unit-entrypoint/g' /usr/local/bin/docker-entrypoint.sh > /usr/local/bin/unit-entrypoint.sh; \
+	grep -F '/unit-entrypoint.d/' /usr/local/bin/unit-entrypoint.sh; \
+	chmod +x /usr/local/bin/unit-entrypoint.sh; \
+	\
+	{ \
+		echo; \
+		echo '// WordPress does not support NGINX Unit (yet), so we have to do a little hackery to let it know that Unit supports nice permalinks (and prevent it from insisting on injecting "/index.php" in all the permalink options) -- the simplest way is teaching it to recognize Unit as if it were NGINX (which is only semi-true, but true enough for these purposes)'; \
+		echo '$is_nginx = $is_nginx || str_starts_with($_SERVER["SERVER_SOFTWARE"], "Unit/");'; \
+		echo '// see also https://github.com/WordPress/WordPress/blob/39f7f558d91afdd2f3afc7f3b049a6a800cd3f80/wp-includes/vars.php#L127'; \
+	} >> /usr/src/wordpress/wp-config-docker.php
+COPY unit.json /unit-entrypoint.d/wordpress.json
+
 COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php-fpm"]
+CMD ["unitd","--no-daemon","--control","unix:/var/run/control.unit.sock"]
