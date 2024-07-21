@@ -168,6 +168,7 @@ RUN set -eux; \
 	} >> /usr/src/wordpress/wp-config-docker.php
 COPY unit.json /unit-entrypoint.d/wordpress.json
 
+RUN cp /usr/src/wordpress/wp-config-docker.php /usr/src/wordpress/wp-config.php
 COPY docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
