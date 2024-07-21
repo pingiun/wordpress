@@ -24,7 +24,7 @@ jobs:
         name: Generate Jobs
         run: |
           strategy="$("$BASHBREW_SCRIPTS/github-actions/generate.sh")"
-          strategy=$(jq -c -n --argjson strategy "$strategy" '$strategy | .matrix.include |= map(. + {tagslist: .meta.entries[].tags | map("ghcr.io/pingiun/\(.)") | join(",")})')
+          strategy=$(jq -c -n --argjson strategy "$strategy" '$strategy | .matrix.include |= map(. + {directory: .meta.entries[].directory, tagslist: .meta.entries[].tags | map("ghcr.io/pingiun/\(.)") | join(",")})')
           echo "strategy=$strategy" >> "$GITHUB_OUTPUT"
           jq . <<<"$strategy" # sanity check / debugging aid
 
@@ -51,6 +51,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          context: "{{defaultContext}}:${{ matrix.directory }}"
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ matrix.tagslist }}
