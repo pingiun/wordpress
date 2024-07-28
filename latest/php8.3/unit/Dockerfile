@@ -145,7 +145,7 @@ RUN set -eux; \
 		dir="$(basename "${dir%/}")"; \
 		mkdir "wp-content/$dir"; \
 	done; \
-	chown -R www-data:www-data wp-content; \
+	chown -R unit:unit wp-content; \
 	chmod -R 1777 wp-content
 
 VOLUME /var/www/html
@@ -153,7 +153,7 @@ VOLUME /var/www/html
 COPY --chown=www-data:www-data wp-config-docker.php /usr/src/wordpress/
 
 # NGINX Unit specific bits
-WORKDIR /var/www/html
+WORKDIR /usr/src/wordpress
 RUN set -eux; \
 # save Unit's entrypoint so we can successfully/correctly configure Unit at runtime
 	sed -e 's/docker-entrypoint/unit-entrypoint/g' /usr/local/bin/docker-entrypoint.sh > /usr/local/bin/unit-entrypoint.sh; \
