@@ -137,7 +137,7 @@ RUN set -eux; \
 		echo '# END WordPress'; \
 	} > /usr/src/wordpress/.htaccess; \
 	\
-	chown -R www-data:www-data /usr/src/wordpress; \
+	chown -R unit:unit /usr/src/wordpress; \
 # pre-create wp-content (and single-level children) for folks who want to bind-mount themes, etc so permissions are pre-created properly instead of root:root
 # wp-content/cache: https://github.com/docker-library/wordpress/issues/534#issuecomment-705733507
 	chown -R unit:unit /usr/src/wordpress/wp-content; \
@@ -145,7 +145,7 @@ RUN set -eux; \
 
 VOLUME /var/www/html
 
-COPY --chown=www-data:www-data wp-config-docker.php /usr/src/wordpress/
+COPY --chown=unit:unit wp-config-docker.php /usr/src/wordpress/
 
 # NGINX Unit specific bits
 WORKDIR /usr/src/wordpress

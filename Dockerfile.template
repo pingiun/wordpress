@@ -39,7 +39,7 @@ RUN apk add --no-cache \
 
 RUN set -ex; \
 	mkdir -p /var/www/html; \
-	chown -R www-data:www-data /var/www/html
+	chown -R unit:unit /var/www/html
 WORKDIR /var/www/html
 {{ ) end -}}
 
@@ -225,7 +225,7 @@ RUN set -eux; \
 		echo '# END WordPress'; \
 	} > /usr/src/wordpress/.htaccess; \
 	\
-	chown -R www-data:www-data /usr/src/wordpress; \
+	chown -R unit:unit /usr/src/wordpress; \
 # pre-create wp-content (and single-level children) for folks who want to bind-mount themes, etc so permissions are pre-created properly instead of root:root
 # wp-content/cache: https://github.com/docker-library/wordpress/issues/534#issuecomment-705733507
 	chown -R unit:unit /usr/src/wordpress/wp-content; \
@@ -266,7 +266,7 @@ RUN set -ex; \
 VOLUME /var/www/html
 
 {{ if env.version != "cli" then ( -}}
-COPY --chown=www-data:www-data wp-config-docker.php /usr/src/wordpress/
+COPY --chown=unit:unit wp-config-docker.php /usr/src/wordpress/
 {{ if env.variant == "unit" then ( -}}
 
 # NGINX Unit specific bits
@@ -301,6 +301,6 @@ CMD {{
 	| @json
 }}
 {{ ) else ( -}}
-USER www-data
+USER unit
 CMD ["wp", "shell"]
 {{ ) end -}}
