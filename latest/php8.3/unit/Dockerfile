@@ -140,13 +140,8 @@ RUN set -eux; \
 	chown -R www-data:www-data /usr/src/wordpress; \
 # pre-create wp-content (and single-level children) for folks who want to bind-mount themes, etc so permissions are pre-created properly instead of root:root
 # wp-content/cache: https://github.com/docker-library/wordpress/issues/534#issuecomment-705733507
-	mkdir wp-content; \
-	for dir in /usr/src/wordpress/wp-content/*/ cache; do \
-		dir="$(basename "${dir%/}")"; \
-		mkdir "wp-content/$dir"; \
-	done; \
-	chown -R unit:unit wp-content; \
-	chmod -R 1777 wp-content
+	chown -R unit:unit /usr/src/wordpress/wp-content; \
+	chmod -R 1777 /usr/src/wordpress/wp-content
 
 VOLUME /var/www/html
 
