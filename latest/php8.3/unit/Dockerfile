@@ -109,6 +109,11 @@ RUN { \
 		echo 'ignore_repeated_source = Off'; \
 		echo 'html_errors = Off'; \
 	} > /usr/local/etc/php/conf.d/error-logging.ini
+# Upload size limits
+RUN { \
+		echo 'upload_max_filesize = 64M'; \
+		echo 'post_max_size = 64M'; \
+	} > /usr/local/etc/php/conf.d/upload-size.ini
 
 RUN set -eux; \
 	version='6.6.1'; \
