@@ -4,7 +4,7 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM unit:1.32.1-php8.3
+FROM unit:1.33.0-php8.3
 
 # persistent dependencies
 RUN set -eux; \
