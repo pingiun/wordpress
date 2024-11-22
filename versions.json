@@ -3,7 +3,7 @@
     "phpVersions": [
       "8.3"
     ],
-    "sha1": "e82f46ce3d0e26a9a00d69b026e0eda6c10d4cac",
+    "sha1": "dfb745d4067368bb9a9491f2b6f7e8d52d740fd1",
     "unit": {
       "phpVersions": [
         "8.3",
@@ -11,10 +11,10 @@
       ],
       "version": "1.33.0"
     },
-    "upstream": "6.7",
+    "upstream": "6.7.1",
     "variants": [
       "unit"
     ],
-    "version": "6.7.0"
+    "version": "6.7.1"
   }
 }
