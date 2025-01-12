@@ -6,10 +6,10 @@
     "sha1": "dfb745d4067368bb9a9491f2b6f7e8d52d740fd1",
     "unit": {
       "phpVersions": [
-        "8.3",
-        "8.2"
+        "8.4",
+        "8.3"
       ],
-      "version": "1.33.0"
+      "version": "1.34.0"
     },
     "upstream": "6.7.1",
     "variants": [
